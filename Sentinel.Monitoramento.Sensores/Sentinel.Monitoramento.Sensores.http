@@ -1,0 +1,6 @@
+@Sentinel.Monitoramento.Sensores_HostAddress = http://localhost:5233
+
+GET {{Sentinel.Monitoramento.Sensores_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
