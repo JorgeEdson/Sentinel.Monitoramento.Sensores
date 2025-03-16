@@ -1,0 +1,60 @@
+name: CI/CD - Sentinel Monitoramento Sensores
+
+on:
+    push:
+      branches:
+        - master
+    pull_request:
+      branches:
+        - master
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    # 1️⃣ Checkout do código
+    - name: Checkout do repositório
+      uses: actions/checkout@v4
+
+    # 2️⃣ Configurar .NET 8
+    - name: Configurar .NET 8
+      uses: actions/setup-dotnet@v3
+      with:
+          dotnet-version: 8.0.x
+
+    # 3️⃣ Restaurar dependências
+    - name: Restaurar dependências
+      run: dotnet restore Sentinel.Monitoramento.Sensores
+
+    # 4️⃣ Compilar o projeto
+    - name: Compilar o projeto
+      run: dotnet build Sentinel.Monitoramento.Sensores --no-restore --configuration Release
+
+    # 5️⃣ Rodar testes (se houver)
+    - name: Executar testes
+      run: dotnet test Sentinel.Monitoramento.Sensores --no-build --configuration Release
+
+    # 6️⃣ Configurar Docker
+    - name: Configurar Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    # 7️⃣ Logar no GitHub Container Registry (GHCR) ou Docker Hub
+    - name: Login no GHCR
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    # 8️⃣ Criar a imagem Docker
+    - name: Construir a imagem Docker
+      run: |
+       docker build -t ghcr.io/${{ github.repository }}/sentinel-monitoramento-sensores:latest .
+
+    # 9️⃣ Enviar imagem para o GHCR
+    - name: Publicar imagem no GHCR
+      run: |
+       docker push ghcr.io/${{ github.repository }}/sentinel-monitoramento-sensores:latest
+
+    # 🔟 Fazer deploy (Opcional - pode ser SSH, Kubernetes, etc.)
+    - name: Deploy no servidor
+      run: |
+       echo "Aqui você pode rodar um SSH ou acionar um serviço de deploy"
