@@ -3,18 +3,14 @@ using Sentinel.Monitoramento.Sensores.Modelos;
 
 namespace Sentinel.Monitoramento.Sensores.Services
 {
-    public class ElasticsearchService(IConfiguration configuration)
+    public class ElasticsearchService(IConfiguration configuration,ElasticsearchClient elasticsearchClient)
     {
-        private static readonly string IndexName = "dados_sensores";
-
-        private readonly ElasticsearchClient _client = new(
-            new ElasticsearchClientSettings(new Uri(configuration["Elasticsearch:Url"]!))
-            .DefaultIndex(IndexName)
-        );
+        private readonly ElasticsearchClient _client = elasticsearchClient;
+        private readonly string _indexName = configuration["Elasticsearch:Index"] ?? "dados_sensores";
 
         public async Task IndexarDadosAsync(DadosSensor dadosSensor)
         {
-            var response = await _client.IndexAsync(dadosSensor, idx => idx.Index(IndexName));
+            var response = await _client.IndexAsync(dadosSensor, idx => idx.Index(_indexName));
 
             if (!response.IsValidResponse)
             {
