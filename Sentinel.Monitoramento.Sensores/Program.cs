@@ -2,6 +2,7 @@ using Elastic.Clients.Elasticsearch;
 using RabbitMQ.Client;
 using Sentinel.Monitoramento.Sensores.Modelos;
 using Sentinel.Monitoramento.Sensores.Services;
+using Sentinel.Monitoramento.Sensores.Utils;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,8 @@ app.UseHttpsRedirection();
 
 app.MapPost("/registrar-dadosSensor", async (DadosSensor dadosSensor, RabbitMQService rabbitMQService, ElasticsearchService elasticsearchService) =>
 {
+    dadosSensor.Id = GeradorIdUtil.ProximoId();
+
     var dados = await rabbitMQService.EnviarParaExchangeAsync(dadosSensor);
     
     await elasticsearchService.IndexarDadosAsync(dados);
