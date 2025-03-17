@@ -1,5 +1,4 @@
 using Elastic.Clients.Elasticsearch;
-using Elastic.Clients.Elasticsearch.Graph;
 using RabbitMQ.Client;
 using Sentinel.Monitoramento.Sensores.Modelos;
 using Sentinel.Monitoramento.Sensores.Services;
