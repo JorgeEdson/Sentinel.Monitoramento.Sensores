@@ -5,12 +5,11 @@ using System.Text;
 
 namespace Sentinel.Monitoramento.Sensores.Services
 {
-    public class RabbitMQService(IConnection connection)
+    public class RabbitMQService(IConnection connection,IConfiguration configuration)
     {
-        private static readonly string ExchangeName = "sensor-data-exchange";
-        private static readonly string RoutingKey = "sensor-data-routing-key";
-
         private readonly IModel _channel = connection.CreateModel();
+        private readonly string _exchangeName = configuration["RabbitMQ:Exchange"] ?? "sensor-data-exchange";
+        private readonly string _routingKey = configuration["RabbitMQ:RoutingKey"] ?? "sensor-data-routing-key";
 
         public async Task<DadosSensor> EnviarParaExchangeAsync(DadosSensor dadosSensor)
         {
@@ -20,8 +19,8 @@ namespace Sentinel.Monitoramento.Sensores.Services
                 var body = Encoding.UTF8.GetBytes(message);
 
                 _channel.BasicPublish(
-                    exchange: ExchangeName,
-                    routingKey: RoutingKey,
+                    exchange: _exchangeName,
+                    routingKey: _routingKey,
                     basicProperties: null,
                     body: body
                 );
